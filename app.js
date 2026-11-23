@@ -397,7 +397,6 @@ async function submitComplaint(event) {
 
     $("reportForm").reset();
     capturedLocation = null;
-    gpsRequestActive = false;
     $("locationStatus").textContent = "GPS is captured automatically when permission is granted. You can still report without GPS.";
     $("locationStatus").className = "location-status";
     $("useCurrentLocationBtn").disabled = false;
