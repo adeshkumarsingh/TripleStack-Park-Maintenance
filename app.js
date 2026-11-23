@@ -153,11 +153,6 @@ async function loadData() {
   }
 }
 
-function renderParks() {
-  // The sample park catalogue has been removed. Residents enter the park name
-  // directly in the report form; keep this function as a harmless render hook.
-}
-
 function filteredComplaints() {
   const status = $("statusFilter").value;
   const query = $("searchInput").value.trim().toLowerCase();
@@ -240,7 +235,6 @@ function renderAnalytics() {
 }
 
 function render() {
-  renderParks();
   renderRequests();
   renderAnalytics();
 }
