@@ -10,27 +10,6 @@ const FEEDBACK_TOKEN_PREFIX = "triplestack.feedback-token.";
 const PAGE_SIZE = 500;
 const SIGNED_URL_SECONDS = 600;
 
-const PARK_MEDIA = {
-  "riverside park": {
-    image: "https://images.unsplash.com/photo-1725109302094-8a4a99bafcb7?auto=format&fit=crop&w=1000&q=84",
-    alt: "A green riverside park with trees and a walking path",
-    credit: "Amandeep Kaur",
-    source: "https://unsplash.com/photos/a-river-running-through-a-lush-green-park-3K2rIntajKQ"
-  },
-  "greenfield park": {
-    image: "https://images.unsplash.com/photo-1683863655647-b37baeb9fd99?auto=format&fit=crop&w=1000&q=84",
-    alt: "A lush botanical garden with mature green trees",
-    credit: "Deepu R",
-    source: "https://unsplash.com/photos/a-lush-green-park-filled-with-lots-of-trees-yX_l4btlLX8"
-  },
-  "central playground": {
-    image: "https://images.unsplash.com/photo-1704747893037-16609585a023?auto=format&fit=crop&w=1000&q=84",
-    alt: "An outdoor playground with a slide and play equipment",
-    credit: "Demeter Alexandru",
-    source: "https://unsplash.com/photos/a-playground-with-a-slide-and-a-play-structure-QrGqrD5Tdcs"
-  }
-};
-
 let db = null;
 let parks = [];
 let complaints = [];
@@ -174,24 +153,18 @@ async function loadData() {
   }
 }
 
-function mediaForPark(name, index) {
-  const key = String(name || "").trim().toLowerCase();
-  return PARK_MEDIA[key] || Object.values(PARK_MEDIA)[index % Object.keys(PARK_MEDIA).length];
-}
-
 function renderParks() {
   // The sample park catalogue has been removed. Residents enter the park name
   // directly in the report form; keep this function as a harmless render hook.
 }
 
 function filteredComplaints() {
-  const park = $("parkFilter")?.value.trim().toLowerCase() || "";
   const status = $("statusFilter").value;
   const query = $("searchInput").value.trim().toLowerCase();
   return complaints.filter((complaint) => {
     const complaintPark = String(complaint.park_name || complaint.parks?.name || "").trim().toLowerCase();
     const haystack = [complaint.title, complaint.category, complaint.location, complaint.description, complaintPark].join(" ").toLowerCase();
-    return (!park || complaintPark === park) && (!status || complaint.status === status) && (!query || haystack.includes(query));
+    return (!status || complaint.status === status) && (!query || haystack.includes(query));
   });
 }
 
@@ -791,7 +764,7 @@ function bindEvents() {
   $("manageForm").addEventListener("submit", saveManagement);
   $("adminLoginForm").addEventListener("submit", adminLogin);
   $("adminLogoutBtn").addEventListener("click", adminLogout);
-  ["parkFilter", "statusFilter", "searchInput"].forEach((id) => $(id).addEventListener(id === "searchInput" ? "input" : "change", renderRequests));
+  ["statusFilter", "searchInput"].forEach((id) => $(id).addEventListener(id === "searchInput" ? "input" : "change", renderRequests));
   document.querySelectorAll("#siteStarPicker button").forEach((button) => button.addEventListener("click", () => {
     siteFeedbackRating = Number(button.dataset.siteRating);
     document.querySelectorAll("#siteStarPicker button").forEach((star) => {
