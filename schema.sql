@@ -165,11 +165,7 @@ create table if not exists public.complaint_activity (
 create index if not exists complaint_activity_complaint_time_idx
   on public.complaint_activity (complaint_id, created_at desc);
 
-insert into public.parks(name,description) values
- ('Riverside Park','Along the river path'),
- ('Greenfield Park','Under the tree canopy'),
- ('Central Playground','Open lawn and play area')
-on conflict (name) do nothing;
+-- No demo parks are seeded. Residents enter the park name when submitting a request.
 
 -- -----------------------------------------------------------------------------
 -- RLS and hardened helper functions
