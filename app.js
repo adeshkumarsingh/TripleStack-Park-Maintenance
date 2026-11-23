@@ -19,8 +19,6 @@ let siteFeedbackRating = 0;
 let siteFeedbackRows = [];
 let toastTimer = null;
 let capturedLocation = null;
-let gpsRequestActive = false;
-let locationManuallyEditedDuringGps = false;
 let previousFocusedElement = null;
 let realtimeChannel = null;
 let signedUrlCache = new Map();
@@ -325,10 +323,8 @@ function getCurrentLocation() {
   button.textContent = "Finding location…";
   status.textContent = "Waiting for browser permission and GPS…";
   status.className = "location-status";
-  gpsRequestActive = true;
 
   navigator.geolocation.getCurrentPosition((position) => {
-    gpsRequestActive = false;
     capturedLocation = {
       latitude: Number(position.coords.latitude.toFixed(6)),
       longitude: Number(position.coords.longitude.toFixed(6))
@@ -338,7 +334,6 @@ function getCurrentLocation() {
     button.disabled = false;
     button.innerHTML = '<span aria-hidden="true">✓</span> Location added';
   }, (error) => {
-    gpsRequestActive = false;
     const messages = {
       1: "GPS permission denied. You can still submit using the park name.",
       2: "GPS location unavailable. You can still submit your report.",
@@ -403,7 +398,6 @@ async function submitComplaint(event) {
     $("reportForm").reset();
     capturedLocation = null;
     gpsRequestActive = false;
-    locationManuallyEditedDuringGps = false;
     $("locationStatus").textContent = "GPS is captured automatically when permission is granted. You can still report without GPS.";
     $("locationStatus").className = "location-status";
     $("useCurrentLocationBtn").disabled = false;
