@@ -157,7 +157,7 @@ async function loadData() {
     const parkPromise = db.from("parks").select("id,name,description,active").eq("active", true).order("name");
     const complaintPromise = currentAdmin
       ? fetchAllPages(() => db.from("complaints")
-          .select("id,park_id,category,title,location,description,photo_path,latitude,longitude,status,assigned_staff,resolution_notes,resolution_photo_path,created_at,resolved_at,parks(name)")
+          .select("id,park_id,park_name,category,title,location,description,photo_path,latitude,longitude,status,assigned_staff,resolution_notes,resolution_photo_path,created_at,resolved_at,parks(name)")
           .order("created_at", { ascending: false }).order("id", { ascending: true }))
       : fetchAllPages(() => db.from("public_complaints").select("*").order("created_at", { ascending: false }).order("id", { ascending: true }));
 
@@ -194,18 +194,22 @@ function renderParks() {
     }).join("");
   }
 
-  const options = parks.map((park) => `<option value="${safe(park.id)}">${safe(park.name)}</option>`).join("");
-  $("reportPark").innerHTML = '<option value="">Select a park</option>' + options;
-  $("parkFilter").innerHTML = '<option value="">All parks</option>' + options;
+  const filterNames = [...new Set([
+    ...parks.map((park) => park.name),
+    ...complaints.map((complaint) => complaint.park_name || complaint.parks?.name).filter(Boolean)
+  ])].sort((a, b) => a.localeCompare(b));
+  $("parkFilter").innerHTML = '<option value="">All parks</option>' +
+    filterNames.map((name) => `<option value="${safe(name)}">${safe(name)}</option>`).join("");
 }
 
 function filteredComplaints() {
-  const park = $("parkFilter").value;
+  const park = $("parkFilter").value.trim().toLowerCase();
   const status = $("statusFilter").value;
   const query = $("searchInput").value.trim().toLowerCase();
   return complaints.filter((complaint) => {
-    const haystack = [complaint.title, complaint.category, complaint.location, complaint.description, complaint.park_name || complaint.parks?.name].join(" ").toLowerCase();
-    return (!park || complaint.park_id === park) && (!status || complaint.status === status) && (!query || haystack.includes(query));
+    const complaintPark = String(complaint.park_name || complaint.parks?.name || "").trim().toLowerCase();
+    const haystack = [complaint.title, complaint.category, complaint.location, complaint.description, complaintPark].join(" ").toLowerCase();
+    return (!park || complaintPark === park) && (!status || complaint.status === status) && (!query || haystack.includes(query));
   });
 }
 
@@ -359,61 +363,42 @@ async function uploadPhoto(file, options = {}) {
 }
 
 function getCurrentLocation() {
-  if (capturedLocation && $("reportLocation").value.startsWith("GPS coordinates:")) {
-    $("reportLocation").value = "";
-  }
+  const button = $("useCurrentLocationBtn");
+  const status = $("locationStatus");
   capturedLocation = null;
-  gpsRequestActive = false;
-  locationManuallyEditedDuringGps = false;
   if (!navigator.geolocation) {
-    $("locationStatus").textContent = "This browser does not support location. Enter it manually.";
-    $("locationStatus").className = "location-status error";
+    status.textContent = "This browser does not support GPS. You can still submit the park name.";
+    status.className = "location-status error";
     return;
   }
 
-  const button = $("useCurrentLocationBtn");
-  const status = $("locationStatus");
   button.disabled = true;
   button.textContent = "Finding location…";
-  status.textContent = "Waiting for your browser's permission and location…";
+  status.textContent = "Waiting for browser permission and GPS…";
   status.className = "location-status";
   gpsRequestActive = true;
 
   navigator.geolocation.getCurrentPosition((position) => {
     gpsRequestActive = false;
-    if (locationManuallyEditedDuringGps) {
-      status.textContent = "Manual location kept. GPS coordinates were not attached.";
-      status.className = "location-status";
-      button.disabled = false;
-      button.innerHTML = '<span aria-hidden="true">⌖</span> Use my current location';
-      return;
-    }
-    const latitude = Number(position.coords.latitude.toFixed(6));
-    const longitude = Number(position.coords.longitude.toFixed(6));
-    capturedLocation = { latitude, longitude };
-    $("reportLocation").value = `GPS coordinates: ${latitude}, ${longitude}`;
-    status.textContent = "Location captured. Coordinates will be attached to this report.";
+    capturedLocation = {
+      latitude: Number(position.coords.latitude.toFixed(6)),
+      longitude: Number(position.coords.longitude.toFixed(6))
+    };
+    status.textContent = "GPS location captured and will be attached to your report.";
     status.className = "location-status success";
     button.disabled = false;
     button.innerHTML = '<span aria-hidden="true">✓</span> Location added';
   }, (error) => {
     gpsRequestActive = false;
-    if (locationManuallyEditedDuringGps) {
-      status.textContent = "Manual location kept. GPS coordinates were not attached.";
-      status.className = "location-status";
-      button.disabled = false;
-      button.innerHTML = '<span aria-hidden="true">⌖</span> Use my current location';
-      return;
-    }
     const messages = {
-      1: "Location permission was denied. You can still enter it manually.",
-      2: "Your location could not be determined. Try again or enter it manually.",
-      3: "Location request timed out. Please try again."
+      1: "GPS permission denied. You can still submit using the park name.",
+      2: "GPS location unavailable. You can still submit your report.",
+      3: "GPS timed out. You can still submit your report."
     };
-    status.textContent = messages[error.code] || "Location is unavailable. Enter it manually.";
+    status.textContent = messages[error.code] || "GPS unavailable. You can still submit your report.";
     status.className = "location-status error";
     button.disabled = false;
-    button.innerHTML = '<span aria-hidden="true">⌖</span> Use my current location';
+    button.innerHTML = '<span aria-hidden="true">⌖</span> Try GPS again';
   }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
 }
 
@@ -430,14 +415,13 @@ async function submitComplaint(event) {
   button.textContent = "Submitting…";
 
   try {
-    const parkId = $("reportPark").value;
-    const park = parks.find((item) => item.id === parkId);
-    if (!park) throw new Error("Please select a park.");
+    const parkName = $("reportPark").value.trim();
     const category = $("reportCategory").value;
     const location = $("reportLocation").value.trim();
     const description = $("reportDescription").value.trim();
+    if (parkName.length < 2 || parkName.length > 120) throw new Error("Enter a park name between 2 and 120 characters.");
     if (!category) throw new Error("Please select an issue category.");
-    if (location.length < 2 || location.length > 140) throw new Error("Enter a park location between 2 and 140 characters.");
+    if (location.length > 140) throw new Error("Location details must be 140 characters or fewer.");
     if (description.length < 5 || description.length > 1200) throw new Error("Describe the issue using 5 to 1,200 characters.");
 
     const reporterKey = getReporterKey();
@@ -449,9 +433,10 @@ async function submitComplaint(event) {
     const { data: complaintId, error } = await db.rpc("submit_public_complaint", {
       p_reporter_key: reporterKey,
       p_feedback_token: feedbackToken,
-      p_park_id: parkId,
+      p_park_id: parks.find((item) => item.name.trim().toLowerCase() === parkName.toLowerCase())?.id ?? null,
+      p_park_name: parkName,
       p_category: category,
-      p_location: location,
+      p_location: location || (capturedLocation ? "GPS location" : "Not specified"),
       p_description: description,
       p_latitude: capturedLocation?.latitude ?? null,
       p_longitude: capturedLocation?.longitude ?? null,
@@ -470,10 +455,10 @@ async function submitComplaint(event) {
     capturedLocation = null;
     gpsRequestActive = false;
     locationManuallyEditedDuringGps = false;
-    $("locationStatus").textContent = "GPS is optional. You can enter the location manually.";
+    $("locationStatus").textContent = "GPS is captured automatically when permission is granted. You can still report without GPS.";
     $("locationStatus").className = "location-status";
     $("useCurrentLocationBtn").disabled = false;
-    $("useCurrentLocationBtn").innerHTML = '<span aria-hidden="true">⌖</span> Use my current location';
+    $("useCurrentLocationBtn").innerHTML = '<span aria-hidden="true">⌖</span> Try GPS again';
     closeModal("reportModal");
     toast(feedbackTokenSaved
       ? "Your report has been submitted successfully."
@@ -767,7 +752,10 @@ async function stopAdminRealtime() {
 }
 
 function bindEvents() {
-  ["reportTopBtn", "reportHeroBtn"].forEach((id) => $(id).addEventListener("click", () => openModal("reportModal")));
+  ["reportTopBtn", "reportHeroBtn"].forEach((id) => $(id).addEventListener("click", () => {
+    openModal("reportModal");
+    getCurrentLocation();
+  }));
   $("siteFeedbackBtn").addEventListener("click", () => openModal("siteFeedbackModal"));
   $("mobileFeedbackLink").addEventListener("click", (event) => { event.preventDefault(); $("topbar").classList.remove("menu-open"); openModal("siteFeedbackModal"); });
   $("refreshSiteFeedbackBtn").addEventListener("click", loadSiteFeedback);
@@ -822,18 +810,6 @@ function bindEvents() {
   $("adminLoginForm").addEventListener("submit", adminLogin);
   $("adminLogoutBtn").addEventListener("click", adminLogout);
   ["parkFilter", "statusFilter", "searchInput"].forEach((id) => $(id).addEventListener(id === "searchInput" ? "input" : "change", renderRequests));
-  $("reportLocation").addEventListener("input", () => {
-    if (gpsRequestActive) {
-      locationManuallyEditedDuringGps = true;
-      capturedLocation = null;
-      return;
-    }
-    if (!capturedLocation) return;
-    capturedLocation = null;
-    $("locationStatus").textContent = "Manual location entered. GPS coordinates will not be attached.";
-    $("locationStatus").className = "location-status";
-    $("useCurrentLocationBtn").innerHTML = '<span aria-hidden="true">⌖</span> Use my current location';
-  });
   document.querySelectorAll("#siteStarPicker button").forEach((button) => button.addEventListener("click", () => {
     siteFeedbackRating = Number(button.dataset.siteRating);
     document.querySelectorAll("#siteStarPicker button").forEach((star) => {
