@@ -4,7 +4,6 @@
   --forest: #173f32;
   --forest-2: #225b45;
   --leaf: #3d815b;
-  --mint: #e8f2e9;
   --mint-2: #f2f7f0;
   --cream: #faf9f4;
   --paper: #ffffff;
@@ -13,7 +12,6 @@
   --line: #e4eae3;
   --gold: #e4b65b;
   --shadow: 0 18px 55px rgba(24, 57, 42, .09);
-  --shadow-hover: 0 22px 60px rgba(24, 57, 42, .15);
   --radius: 20px;
 }
 * { box-sizing: border-box; }
