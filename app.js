@@ -180,30 +180,12 @@ function mediaForPark(name, index) {
 }
 
 function renderParks() {
-  const grid = $("parkGrid");
-  if (parks.length) {
-    grid.innerHTML = parks.map((park, index) => {
-      const media = mediaForPark(park.name, index);
-      return `<article class="park-card">
-        <div class="park-photo">
-          <img src="${safe(media.image)}" alt="${safe(media.alt)}" loading="lazy" decoding="async" />
-          <a class="photo-credit" href="${safe(media.source)}" target="_blank" rel="noopener noreferrer">Photo: ${safe(media.credit)} / Unsplash</a>
-        </div>
-        <div class="park-card-copy"><b>${safe(park.name)}</b><small>${safe(park.description || "A shared public green space")}</small></div>
-      </article>`;
-    }).join("");
-  }
-
-  const filterNames = [...new Set([
-    ...parks.map((park) => park.name),
-    ...complaints.map((complaint) => complaint.park_name || complaint.parks?.name).filter(Boolean)
-  ])].sort((a, b) => a.localeCompare(b));
-  $("parkFilter").innerHTML = '<option value="">All parks</option>' +
-    filterNames.map((name) => `<option value="${safe(name)}">${safe(name)}</option>`).join("");
+  // The sample park catalogue has been removed. Residents enter the park name
+  // directly in the report form; keep this function as a harmless render hook.
 }
 
 function filteredComplaints() {
-  const park = $("parkFilter").value.trim().toLowerCase();
+  const park = $("parkFilter")?.value.trim().toLowerCase() || "";
   const status = $("statusFilter").value;
   const query = $("searchInput").value.trim().toLowerCase();
   return complaints.filter((complaint) => {
@@ -245,7 +227,7 @@ function renderRequests() {
       ? `<button class="btn btn-primary" data-feedback="${safe(complaint.id)}" data-title="${safe(complaint.title)}" type="button">Give feedback</button>`
       : "";
     const url = mapUrl(complaint.latitude, complaint.longitude);
-    const locationLink = url ? `<a class="map-link" href="${safe(url)}" target="_blank" rel="noopener noreferrer">View pinned location ↗</a>` : "";
+    const locationLink = currentAdmin && url ? `<a class="map-link" href="${safe(url)}" target="_blank" rel="noopener noreferrer">View pinned location ↗</a>` : "";
     return `<article class="request-card">
       <div class="card-top"><span class="category-pill">${safe(complaint.category)}</span><span class="status-pill ${safe(complaint.status)}">${safe(statusLabel(complaint.status))}</span></div>
       <h3>${safe(complaint.title)}</h3>
