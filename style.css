@@ -83,20 +83,6 @@ a { color: inherit; }
 .section-heading h2, .about-copy h2 { margin: 10px 0 0; color: var(--forest); font: 800 34px/1.15 "Manrope", sans-serif; letter-spacing: -1.35px; }
 .section-description { margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
 .section-note { color: #89968e; font-size: 11px; font-weight: 600; padding-bottom: 4px; }
-.park-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-.park-card { overflow: hidden; background: white; border: 1px solid var(--line); border-radius: 19px; box-shadow: 0 7px 24px rgba(35, 63, 45, .035); transition: transform .25s ease, box-shadow .25s ease; }
-.park-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); }
-.park-photo { height: 205px; position: relative; overflow: hidden; background: var(--mint); }
-.park-photo img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
-.park-card:hover .park-photo img { transform: scale(1.045); }
-.park-placeholder { height: 100%; display: grid; place-items: center; font-size: 54px; background: linear-gradient(135deg, #d5e6ce, #edf2dd); }
-.photo-credit { position: absolute; right: 10px; bottom: 10px; padding: 5px 8px; border-radius: 99px; background: rgba(20, 45, 32, .64); color: white; font-size: 9px; text-decoration: none; backdrop-filter: blur(7px); }
-.photo-credit:hover { background: rgba(20,45,32,.86); }
-.park-card-copy { padding: 17px 18px 19px; }
-.park-card-copy b, .park-card-copy small { display: block; }
-.park-card-copy b { color: var(--forest); font: 800 14px "Manrope", sans-serif; }
-.park-card-copy small { margin-top: 5px; color: var(--muted); font-size: 11px; }
-.photo-disclaimer { margin: 12px 0 0; color: #95a097; font-size: 10px; }
 .section-requests { padding-top: 8px; }
 .request-count { padding: 8px 12px; border-radius: 99px; background: var(--mint-2); color: var(--forest-2); font-size: 10px; font-weight: 800; white-space: nowrap; }
 .filters { display: grid; grid-template-columns: 190px 190px 1fr; gap: 12px; margin-bottom: 20px; padding: 16px; background: white; border: 1px solid var(--line); border-radius: 17px; box-shadow: 0 7px 22px rgba(35,63,45,.025); }
@@ -219,8 +205,6 @@ form label .optional { color: #9aa59d; font-weight: 500; }
   .section-heading { align-items: flex-start; flex-direction: column; gap: 12px; margin-bottom: 19px; }
   .section-heading h2, .about-copy h2 { font-size: 29px; }
   .park-grid, .request-grid, .analytics-grid, .about-section { grid-template-columns: 1fr; }
-  .park-grid { gap: 13px; }
-  .park-photo { height: 190px; }
   .filters { grid-template-columns: 1fr 1fr; padding: 12px; gap: 10px; }
   .search-label { grid-column: 1 / -1; }
   .request-grid { gap: 12px; }
