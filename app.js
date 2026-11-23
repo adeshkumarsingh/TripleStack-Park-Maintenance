@@ -2,7 +2,7 @@
 // Configure the Supabase URL and anon/publishable key below.
 // Never put a service_role or secret key in browser code.
 
-const SUPABASE_URL = "https://xuwykworsckaonlhdjdx.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://xuwykworsckaonlhdjdx.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_vSIGoQ-ZYQWTO1_TajgqBA_KhSGHMrR";
 const STORAGE_BUCKET = "issue-photos";
 const REPORTER_KEY_STORAGE = "triplestack.reporter-key.v1";
