@@ -63,26 +63,12 @@
       <article class="stat-card"><span class="stat-symbol" aria-hidden="true">✓</span><strong id="resolvedCount">—</strong><small>Resolved</small></article>
     </section>
 
-    <section class="section page-shell" id="parks">
-      <div class="section-heading">
-        <div><span class="eyebrow">A LITTLE MORE GREEN</span><h2>Explore the parks</h2><p class="section-description">Choose a space and help us keep it welcoming, safe and clean.</p></div>
-        <span class="section-note">Select a park when reporting</span>
-      </div>
-      <div class="park-grid" id="parkGrid">
-        <article class="park-card park-fallback"><div class="park-photo"><div class="park-placeholder">🌳</div></div><div class="park-card-copy"><b>Riverside Park</b><small>Along the river path</small></div></article>
-        <article class="park-card park-fallback"><div class="park-photo"><div class="park-placeholder">🌲</div></div><div class="park-card-copy"><b>Greenfield Park</b><small>Under the tree canopy</small></div></article>
-        <article class="park-card park-fallback"><div class="park-photo"><div class="park-placeholder">🌿</div></div><div class="park-card-copy"><b>Central Playground</b><small>Open lawn and play area</small></div></article>
-      </div>
-      <p class="photo-disclaimer">Park images are illustrative reference photos. They do not represent verified photographs of the named locations.</p>
-    </section>
-
     <section class="section section-requests page-shell" id="requests">
       <div class="section-heading">
         <div><span class="eyebrow">OPEN, CLEAR, ACCOUNTABLE</span><h2>Maintenance requests</h2><p class="section-description">See what has been reported and follow progress at a glance.</p></div>
         <span class="request-count" id="visibleCount">Loading requests…</span>
       </div>
       <div class="filters">
-        <label>Park<select id="parkFilter"><option value="">All parks</option></select></label>
         <label>Status<select id="statusFilter"><option value="">All statuses</option><option value="submitted">Submitted</option><option value="assigned">Assigned</option><option value="in_progress">In progress</option><option value="resolved">Resolved</option></select></label>
         <label class="search-label">Search<input id="searchInput" type="search" placeholder="Try a category or location…" /></label>
       </div>
@@ -125,7 +111,7 @@
         <div class="location-tools"><button class="btn btn-location" id="useCurrentLocationBtn" type="button"><span aria-hidden="true">⌖</span> Use my current location</button><span class="location-status" id="locationStatus" role="status" aria-live="polite"></span></div>
         <label>Additional information<textarea id="reportDescription" required maxlength="1200" rows="4" placeholder="What needs attention? Be as specific as you can."></textarea></label>
         <label>Photo evidence <span class="optional">(optional, JPG/PNG/WEBP up to 5 MB)</span><input id="reportPhoto" type="file" accept="image/png,image/jpeg,image/webp" /></label>
-        <div class="form-note">Please avoid including faces, personal documents or other sensitive information in photos or descriptions. GPS is only used when you press the location button and grant permission. Approximate GPS coordinates (rounded to around 100 m) may appear on the public request feed. Uploaded evidence is stored privately and shown using short-lived viewing links.</div>
+        <div class="form-note">Please avoid including faces, personal documents or other sensitive information in photos or descriptions. GPS is only used when you press the location button and grant permission. GPS coordinates are private and visible only to approved administrators. Uploaded evidence is stored privately and shown using short-lived viewing links.</div>
         <button class="btn btn-primary btn-full" type="submit" id="submitReportBtn">Submit report <span aria-hidden="true">↗</span></button>
       </form>
     </section>
