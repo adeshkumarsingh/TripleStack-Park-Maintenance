@@ -572,10 +572,9 @@ create policy "Admins read complaint activity" on public.complaint_activity
   for select to authenticated using (public.is_park_admin());
 
 -- -----------------------------------------------------------------------------
--- Public projection: deliberately excludes assigned staff, exact GPS, feedback token
--- hashes, reporter identifiers and internal table columns. Coordinates are rounded to
--- 3 decimal places (roughly 100 m) before reaching public browsers.
--- This view intentionally runs with its owner's table permissions; never add secrets here.
+-- Public projection: deliberately excludes assigned staff, GPS coordinates, feedback token
+-- hashes, reporter identifiers and internal table columns. GPS is available only through
+-- the admin-only complaints table protected by RLS. Never add secrets here.
 -- -----------------------------------------------------------------------------
 drop function if exists public.get_feedback_complaint_ids();
 
@@ -594,8 +593,6 @@ select
   c.status,
   c.resolution_notes,
   c.resolution_photo_path,
-  case when c.latitude is null then null else round(c.latitude::numeric, 3)::double precision end as latitude,
-  case when c.longitude is null then null else round(c.longitude::numeric, 3)::double precision end as longitude,
   c.created_at,
   c.resolved_at,
   exists(select 1 from public.feedback f where f.complaint_id = c.id) as has_feedback
